@@ -233,6 +233,121 @@ button:hover
     background-color: darkslategray;
 }
 
+.submissionPage
+{
+    max-width: 1100px;
+    margin: 25px auto;
+}
+
+.submissionHeading
+{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    margin-bottom: 20px;
+}
+
+.submissionHeading h2
+{
+    margin: 0;
+}
+
+.submissionHeading button
+{
+    background-color: white;
+    color: black;
+
+    border: 2px solid black;
+}
+
+.submissionHeading button:disabled
+{
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.submissionPage form div
+{
+    margin-bottom: 20px;
+}
+
+.submissionPage label
+{
+    display: block;
+
+    margin-bottom: 6px;
+    font-weight: bold;
+}
+
+.submissionPage input,
+.submissionPage textarea,
+.submissionPage select
+{
+    padding: 10px;
+
+    border: 2px solid black;
+    border-radius: 6px;
+
+    font-family: inherit;
+    font-size: 16px;
+
+    box-sizing: border-box;
+}
+
+.submissionPage input
+{
+    width: 45%;
+}
+
+.submissionPage textarea
+{
+    width: 45%;
+    resize: vertical;
+}
+
+#instructions
+{
+    width: 100%;
+}
+
+.recipeOptions
+{
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
+}
+
+.recipeOptions input,
+.recipeOptions select
+{
+    width: 100%;
+}
+
+.error
+{
+    color: darkred;
+}
+
+@media (max-width: 600px)
+{
+    .submissionPage
+    {
+        width: 95%;
+    }
+
+    .submissionPage input,
+    .submissionPage textarea
+    {
+        width: 100%;
+    }
+
+    .recipeOptions
+    {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Mobile */
 
 @media (max-width: 800px)

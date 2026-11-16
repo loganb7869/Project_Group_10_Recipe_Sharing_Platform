@@ -1,6 +1,129 @@
 <%- include("../partials/header.ejs") %>
 
 <body>
-    <h1>HI</h1>
+    <nav>
+        <h2><a href="/">RECIPE GO</a></h2>
+
+        <div>
+            <a href="/">HOME</a>
+            <a href="/saved">SAVED</a>
+            <a href="/signin">LOGIN</a>
+        </div>
+    </nav>
+
+    <main class="submissionPage">
+        <div class="submissionHeading">
+            <h2>SUBMIT A RECIPE</h2>
+
+            <button type="button" disabled>
+                Upload Image
+            </button>
+        </div>
+
+        <% if (error) { %>
+            <p class="error">
+                <%= error %>
+            </p>
+        <% } %>
+
+        <form action="/recipe_submit" method="POST" id="recipeForm">
+            <div>
+                <label for="title">RECIPE TITLE</label>
+
+                <input type="text" id="title" name="title" maxlength="100" required>
+            </div>
+
+            <div>
+                <label for="description">INGREDIENTS</label>
+
+                <textarea id="description" name="description" rows="2" required></textarea>
+            </div>
+
+            <div>
+                <label for="instructions">INSTRUCTIONS</label>
+
+                <textarea id="instructions" name="instructions" rows="5" required></textarea>
+            </div>
+
+            <div>
+                <label for="cook_time">COOK TIME (Minutes)</label>
+
+                <input type="number" idconst instructions = document.getElementById("instructions").value.trim();="cook_time" name="cook_time" min="0" required>
+            </div>
+
+            <div>
+                <label for ="servings">SERVINGS</label>
+
+                <input type="number" id="servings" name="servings" min="1" required>
+            </div>
+                
+            <div>
+                <label for="difficulty">DIFFICULTY</label>
+
+                <select id="difficulty" name="difficulty" required>
+                    <option value="">Select Option</option>
+                    <option value="Easy">Easy</option>
+                    <option value="Medium">Medium</option>
+                    <option value="Hard">Hard</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="category">MEAL TYPE</label>
+
+                <select id="category" name="category" required>
+                    <option value="">Select Category</option>
+                    <option value="Breakfast">Breakfast</option>
+                    <option value="Lunch">Lunch</option>
+                    <option value="Dinner">Dinner</option>
+                    <option value="Dessert">Dessert</option>
+                    <option value="Snack">Snack</option>
+                </select>
+            </div>
+
+            <div>
+                <label for="tag">DIET TYPE</label>
+                <select id="tag" name="tag" required>
+                    <option value="">Select Preference</option>
+                    <option value="No Restrictions">No Restrictions</option>
+                    <option value="Gluten Free">Gluten Free</option>
+                    <option value="Vegetarian">Vegetarian</option>
+                    <option value="Vegan">Vegan</option>
+                    <option value="Dairy Free">Dairy Free</option>
+                </select>
+            </div>
+
+            <p id="formError" class="error" hidden>
+            Error: Complete All Required Fields
+            </p>
+
+            <button type="submit">SUBMIT RECIPE</button>
+
+            </form>
+    </main>
+
+    <script>
+        const form = document.getElementById("recipeForm");
+        const formError = document.getElementById("formError");
+
+        form.addEventListener("submit", function(event)
+        {
+            const title = document.getElementById("title").value.trim();
+            const ingredients = document.getElementById("description").value.trim();
+            const instructions = document.getElementById("instructions").value.trim();
+
+            if (title === "" || ingredients === "" || instructions === "" || !form.checkValidity())
+            {
+                event.preventDefault();
+                formError.hidden = false;
+                form.reportValidity();
+            }
+            else
+            {
+                formError.hidden = true;
+            }
+        });
+    </script>
+
 </body>
 </html>
