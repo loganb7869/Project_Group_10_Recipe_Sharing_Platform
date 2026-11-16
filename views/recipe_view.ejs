@@ -1,6 +1,100 @@
 <%- include("../partials/header.ejs") %>
 
 <body>
-    <h1>HI</h1>
+    <nav>
+        <h2><a href="/">RECIPE GO</a></h2>
+
+        <div>
+            <a href="/">HOME</a>
+            <a href="/saved">SAVED</a>
+            <a href="/signin">LOGIN</a>
+        </div>
+    </nav>
+
+    <main class="recipePage">
+        <section>
+            <div class=""recipeDetails">
+                <div>
+                    <h1>Spaghetti Prolly</h1>
+                    <p>30 Minutes | Easy | Dinner</p>
+
+                    <p class="rating">
+                        ★★★★★ 5/5
+                    </p>
+
+                    <h3>INGREDIENTS</h3>
+
+                    <ul>
+                        <li>Pasta</li>
+                        <li>Tomato Sauce</li>
+                        <li>Garlic</li>
+                    </ul>
+
+                    <h3>INSTRUCTIONS</h3>
+
+                    <div class="instructions">
+                        <ol>
+                            <li>Boil water</li>
+                            <li>Cook the pasta</li>
+                            <li>Add the sauce</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <br>
+
+                <div>
+                    <div class="recipePhoto">
+                        <p>Image of Spaghetti Prolly</p>
+                    </div>
+
+                    <h3>LEAVE A REVIEW</h3>
+
+                    <div id="stars">
+                        <button type=""button" data-rating="1">☆</button>
+                        <button type=""button" data-rating="2">☆</button>
+                        <button type=""button" data-rating="3">☆</button>
+                        <button type=""button" data-rating="4">☆</button>
+                        <button type=""button" data-rating="5">☆</button>
+                    </div>
+
+                    <p id="ratingMessage"></p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const stars = document.querySelectorAll("#stars button");
+        const ratingMessage = document.getElementById("ratingMessage");
+
+        let selectedRating = 0;
+
+        stars.forEach(function(star)
+        {
+            star.addEventListener("click", function()
+            {
+                selectedRating = Number(star.dataset.rating);
+
+                stars.forEach(function(button)
+                {
+                    const value = Number(button.dataset.rating);
+
+                    if (value <= selectedRating)
+                    {
+                        button.textContent = "★";
+                    }
+                    else
+                    {
+                        button.textContent = "☆";
+                    }
+                });
+
+                ratingMessage.textContent =
+                    "You rated this recipe " + selectedRating + " stars";
+            });
+        });
+    </script>
+
 </body>
 </html>
