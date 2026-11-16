@@ -1,6 +1,132 @@
 <%- include("../partials/header.ejs") %>
 
 <body>
-    <h1>HI</h1>
+    <nav class="navbar navbar-expand-lg reipe-navbar">
+        <div class="container">
+            <a class="navbar-brand" href="/">RECIPE GO</a>
+
+            <div class="navbar-links">
+                <a href="/">HOME</a>
+                <a href="/">SAVED</a>
+                <a href="/">LOGIN</a>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <section class="hero-section">
+            <h1>Find Your Next Meal!</h1>
+            <p>Discover something to cook TODAY</p>
+
+            <form class="search-form" id="recipeSearchForm">
+                <input type="search" id="recipeSearch" placeholder="search a recipe..." aria-label="search recipes">
+                <button type="submit">SEARCH</button>
+            </form>
+        </section>
+
+        <section class="recipes-section">
+            <div class="section-heading">
+                <h2>Find Recipes</h2>
+
+                <button class="filter-button" type="button" id="filterToggle" aria-expanded="false" aria-controls="filterPanel">
+                    Filters &#9662;
+                </button>
+            </div>
+
+            <div id="filterPanel" class="filter-panel" hidden>
+            </div>
+
+            <div class="recipe-grid" id="recipeGrid">
+
+                <!-- REMOVE THESE LATER PLEASE LORD -->
+                <% const sampleRecipes = [
+                    { name: "Spaghetti", emoji: "🍝", time: 30, difficulty: "Easy", rating: 5 },
+                    { name: "Pancakes", emoji: "🥞", time: 20, difficulty: "Easy", rating: 4 },
+                    { name: "Garden Salad", emoji: "🥗", time: 15, difficulty: "Easy", rating: 4 },
+                    { name: "Burger", emoji: "🍔", time: 35, difficulty: "Medium", rating: 5 }
+                ]; %>
+
+                <% sampleRecipes.forEach(recipe => { %>
+                    <article class="recipe-card"
+                             data-name="<%= recipe.name.toLowerCase() %>">
+
+                        <div class="recipe-image">
+                            <span><%= recipe.emoji %></span>
+                        </div>
+
+                        <div class="recipe-content">
+                            <h3><%= recipe.name %></h3>
+
+                            <div class="recipe-meta">
+                                <span><%= recipe.time %> min</span>
+                                <span><%= recipe.difficulty %></span>
+                            </div>
+
+                            <div class="recipe-rating">
+                                &#9733; <%= recipe.rating %>/5
+                            </div>
+
+                            <a href="/view_recipe" class="recipe-link">
+                                View Recipe
+                            </a>
+                        </div>
+                    </article>
+                <% }); %>
+            </div>
+
+            <p id="noResults" class="no-results" hidden>
+                No Results.
+            </p>
+        </section>
+
+        <div class="submit-cta">
+            <h2>Share a recipe!</h2>
+            <p>Share your own recipe with the community!</p>
+            <a href="/recipe_submit" class="primary-button">
+                Submit a new recipe.
+            </a>
+        </div>
+    </main>
+
+    <script>
+        const searchForm = document.getElementById("recipeSearchForm");
+        const searchInput = document.getElementById("recipeSearch");
+        const cards = document.querySelectorAll(".recipe-card");
+        const noResults = document.getElementById("noResults");
+
+        function searchRecipes() {
+            const query = searchInput.value.trim().toLowerCase();
+            let visibleCount = 0;
+
+            cards.forEach(card => {
+                const name = card.dataset.name;
+                const matches = name.includes(query);
+
+                card.hidden = !matches;
+
+                if (matches) visibleCount++;
+            });
+
+            noResults.hidden = visibleCount !== 0;
+        }
+
+        searchForm.addEventListener("submit", event => {
+            event.preventDefault();
+            searchRecipes();
+        });
+
+        searchInput.addEventListener("input", searchRecipes);
+
+        const filterToggle = document.getElementById("filterToggle");
+        const filterPanel = document.getElementById("filterPanel");
+
+        filterToggle.addEventListener("click", () => {
+            filterPanel.hidden = !filterPanel.hidden;
+            filterToggle.setAttribute(
+                "aria-expanded",
+                String(!filterPanel.hidden)
+            );
+        });
+    </script>
 </body>
 </html>
