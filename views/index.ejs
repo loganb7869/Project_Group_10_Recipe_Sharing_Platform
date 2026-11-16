@@ -30,6 +30,48 @@
                 </button>
             </div>
 
+            <div id="filters" hidden>
+                <div>
+                    <label for="timeFilter">COOKING TIME</label>
+
+                    <select id="timeFilter">
+                        <option value="0">Any Time</option>
+                        <option value="15">15 Minutes or Less</option>
+                        <option value="30">30 Minutes or Less</option>
+                        <option value="60">60 Minutes or Less</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="difficultyFilter">DIFFICULTY</label>
+
+                    <select id="difficultyFilter">
+                        <option value="all">Any Difficulty</option>
+                        <option value="Easy">Easy</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Hard">Hard</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="ratingFilter">MINIMUM RATING</label>
+
+                    <select id="ratingFilter">
+                        <option value="0">Any Rating</option>
+                        <option value="1">1+ Stars</option>
+                        <option value="2">2+ Stars</option>
+                        <option value="3">3+ Stars</option>
+                        <option value="4">4+ Stars</option>
+                        <option value="5">5 Stars</option>
+                    </select>
+                </div>
+
+                <button type="button" id="clearFilters">
+                    CLEAR FILTERS
+                </button>
+
+            </div>
+
             <div class="recipes">
                     <!--PLEASE REMOVE ME LATER-->
                     
@@ -42,7 +84,7 @@
 
                     <% recipes.forEach(recipe => { %>
 
-                        <article class="recipe" data-name="<%= recipe.name.toLowerCase() %>">
+                        <article class="recipe" data-name="<%= recipe.name.toLowerCase() %>" data-time="<%= recipe.time %>" data-difficulty="<%= recipe.difficulty %>" data-rating="<%= recipe.rating %>">
 
                             <div class="recipeImage">
                                 <p><%= recipe.name %></p>
@@ -75,32 +117,71 @@
             <h2>Have a Recipe?</h2>
             <p>Share your own homemade Recipe!</p>
 
-            <a href="/recipe_submit">SUBMIT RECIPE</a>
+            <a href="/preview_submission">SUBMIT RECIPE</a>
         </section>
 
     </main>
 
     <script>
-
         const searchForm = document.getElementById("searchForm");
         const search = document.getElementById("search");
         const recipes = document.querySelectorAll(".recipe");
         const noResults = document.getElementById("noResults");
+        const filterButton = document.getElementById("filterButton");
+        const filters = document.getElementById("filters");
+        const timeFilter = document.getElementById("timeFilter");
+        const difficultyFilter = document.getElementById("difficultyFilter");
+        const ratingFilter = document.getElementById("ratingFilter");
+        const clearFilters = document.getElementById("clearFilters");
 
         searchForm.addEventListener("submit", function(event)
         {
             event.preventDefault();
+            filterRecipes();
         });
 
-        search.addEventListener("input", function()
+        filterButton.addEventListener("click", function()
         {
+            filters.hidden = !filters.hidden;
+        });
+
+        search.addEventListener("input", filterRecipes);
+        timeFilter.addEventListener("change", filterRecipes);
+        difficultyFilter.addEventListener("change", filterRecipes);
+        ratingFilter.addEventListener("change", filterRecipes);
+
+        clearFilters.addEventListener("click", function()
+        {
+            search.value = "";
+            timeFilter.value = "0";
+            difficultyFilter.value = "all";
+            ratingFilter.value = "0";
+
+            filterRecipes();
+        });
+
+        function filterRecipes()
+        {
+            const searchText = search.value.toLowerCase().trim();
+            const maxTime = Number(timeFilter.value);
+            const difficulty = difficultyFilter.value;
+            const minRating = Number(ratingFilter.value);
+
             let found = false;
 
             recipes.forEach(function(recipe)
             {
                 const name = recipe.dataset.name;
+                const time = Number(recipe.dataset.time);
+                const recipeDifficulty = recipe.dataset.difficulty;
+                const rating = Number(recipe.dataset.rating);
+                const matchesSearch = name.includes(searchText);
+                const matchesTime = maxTime === 0 || time <= maxTime;
+                const matchesDifficulty = difficulty === "all" || recipeDifficulty === difficulty;
+                const matchesRating = rating >= minRating;
 
-                if (name.includes(search.value.toLowerCase().trim()))
+                if (matchesSearch && matchesTime &&
+                    matchesDifficulty && matchesRating)
                 {
                     recipe.hidden = false;
                     found = true;
@@ -112,15 +193,7 @@
             });
 
             noResults.hidden = found;
-        });
-
-        const filterButton = document.getElementById("filterButton");
-        const filters = document.getElementById("filters");
-
-        filterButton.addEventListener("click", function()
-        {
-            filters.hidden = !filters.hidden;
-        });
+        }
 
     </script>
 </body>
