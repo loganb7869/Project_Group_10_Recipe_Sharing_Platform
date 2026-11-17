@@ -202,6 +202,26 @@ app.get("/view_recipe", (req, res) => {
     });
 });
 
+app.get("/preview_submission", (req, res) => {
+    res.render("recipe_submission.ejs", {
+        title: "Recipe Submission",
+        error: null
+    });
+});
+
+app.get("/view_recipe", (req, res) => {
+    res.render("recipe_view.ejs", {
+        title: "View Recipe",
+        error: null
+    });
+});
+
+app.get("/saved", (req, res) => {
+    res.render("saved_recipes.ejs", {
+        title: "Saved Recipes"
+    });
+});
+
 // handle page not found
 app.use((req, res) => {
     res.status(404).send("<h1>Page not found</h1>");

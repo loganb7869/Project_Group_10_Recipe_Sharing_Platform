@@ -1,0 +1,262 @@
+<%- include("../partials/header.ejs") %>
+
+<body>
+    <nav>
+        <h2><a href="/">RECIPE GO</a></h2>
+
+        <div>
+            <a href="/">HOME</a>
+            <a href="/saved">SAVED</a>
+            <a href="/signin">LOGIN</a>
+        </div>
+    </nav>
+
+    <main class="savedPage">
+
+        <div class="sectionHeading">
+            <h1>SAVED RECIPES</h1>
+
+            <button type="button" id="newCollection">NEW COLLECTION</button>
+        </div>
+
+        <section>
+            <h2>MY FAVORITES</h2>
+
+            <div class="recipes" id="savedRecipes"></div>
+
+            <p id="emptySaved">No saved recipes</p>
+        </section>
+
+        <section>
+            <h2>MY COLLECTIONS</h2>
+
+            <div id="collections"></div>
+
+            <p id="emptyCollections">No collections created yet!</p>
+        </section>
+    </main>
+
+    <script>
+        const savedRecipes = document.getElementById("savedRecipes");
+        const collections = document.getElementById("collections");
+
+        const emptySaved = document.getElementById("emptySaved");
+        const emptyCollections = document.getElementById("emptyCollections");
+
+        const newCollection = document.getElementById("newCollection");
+
+        const sampleRecipes = [
+            { id: 1, name: "Spaghetti", time: 30, difficulty: "Easy", rating: 5 },
+            { id: 2, name: "Pancakes", time: 20, difficulty: "Easy", rating: 4 },
+            { id: 3, name: "Salad", time: 15, difficulty: "Easy", rating: 4 },
+            { id: 4, name: "Burger", time: 35, difficulty: "Medium", rating: 5 }
+        ];
+
+        let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+        let recipeCollections = JSON.parse(localStorage.getItem("recipeCollections") || "[]");
+
+        function saveData()
+        {
+            localStorage.setItem("favorites", JSON.stringify(favorites));
+            localStorage.setItem("recipeCollections", JSON.stringify(recipeCollections));
+        }
+
+        function displaySavedRecipes()
+        {
+            savedRecipes.innerHTML = "";
+
+            favorites.forEach(function(id)
+            {
+                const recipe = sampleRecipes.find(function(item)
+                {
+                    return item.id === id;
+                });
+
+                if (!recipe)
+                {
+                    return;
+                }
+
+                const card = document.createElement("article");
+                card.className = "recipe";
+
+                const heading = document.createElement("h3");
+                heading.textContent = recipe.name;
+
+                const details = document.createElement("p");
+                details.textContent = recipe.time + " Minutes | " + recipe.difficulty;
+
+                const remove = document.createElement("button");
+                remove.textContent = "REMOVE";
+
+                remove.addEventListener("click", function()
+                {
+                    favorites = favorites.filter(function(savedId)
+                    {
+                        return savedId !== id;
+                    });
+
+                    recipeCollections.forEach(function(collection)
+                    {
+                        collection.recipes = collection.recipes.filter(function(savedId)
+                        {
+                            return savedId !== id;
+                        });
+                    });
+
+                    saveData();
+                    displaySavedRecipes();
+                    displayCollections();
+                });
+
+                const collectionSelect = document.createElement("select");
+
+                const defaultOption = document.createElement("option");
+                defaultOption.value = "";
+                defaultOption.textContent = "Add to Collection";
+                collectionSelect.appendChild(defaultOption);
+
+                recipeCollections.forEach(function(collection)
+                {
+                    const option = document.createElement("option");
+                    option.value = collection.name;
+                    option.textContent = collection.name;
+                    collectionSelect.appendChild(option);
+                });
+
+                collectionSelect.addEventListener("change", function()
+                {
+                    const collection = recipeCollections.find(function(item)
+                    {
+                        return item.name === collectionSelect.value;
+                    });
+
+                    if (collection && !collection.recipes.includes(id))
+                    {
+                        collection.recipes.push(id);
+                        saveData();
+                        displayCollections();
+                    }
+
+                    collectionSelect.value = "";
+                });
+
+                card.appendChild(heading);
+                card.appendChild(details);
+                card.appendChild(collectionSelect);
+                card.appendChild(remove);
+
+                savedRecipes.appendChild(card);
+            });
+
+            emptySaved.hidden = favorites.length > 0;
+        }
+
+        function displayCollections()
+        {
+            collections.innerHTML = "";
+
+            recipeCollections.forEach(function(collection)
+            {
+                const article = document.createElement("article");
+
+                const heading = document.createElement("h3");
+                heading.textContent = collection.name;
+
+                const list = document.createElement("ul");
+
+                collection.recipes.forEach(function(id)
+                {
+                    const recipe = sampleRecipes.find(function(item)
+                    {
+                        return item.id === id;
+                    });
+
+                    if (!recipe)
+                    {
+                        return;
+                    }
+
+                    const item = document.createElement("li");
+                    item.textContent = recipe.name + " ";
+
+                    const remove = document.createElement("button");
+                    remove.textContent = "REMOVE";
+
+                    remove.addEventListener("click", function()
+                    {
+                        collection.recipes = collection.recipes.filter(function(savedId)
+                        {
+                            return savedId !== id;
+                        });
+
+                        saveData();
+                        displayCollections();
+                    });
+
+                    item.appendChild(remove);
+                    list.appendChild(item);
+                });
+
+                const deleteButton = document.createElement("button");
+                deleteButton.textContent = "DELETE COLLECTION";
+
+                deleteButton.addEventListener("click", function()
+                {
+                    recipeCollections = recipeCollections.filter(function(item)
+                    {
+                        return item.name !== collection.name;
+                    });
+
+                    saveData();
+                    displaySavedRecipes();
+                    displayCollections();
+                });
+
+                article.appendChild(heading);
+                article.appendChild(list);
+                article.appendChild(deleteButton);
+
+                collections.appendChild(article);
+            });
+
+            emptyCollections.hidden = recipeCollections.length > 0;
+        }
+
+        newCollection.addEventListener("click", function()
+        {
+            const name = prompt("Enter a collection name:");
+
+            if (!name || name.trim() === "")
+            {
+                return;
+            }
+
+            const collectionName = name.trim();
+
+            const exists = recipeCollections.some(function(collection)
+            {
+                return collection.name.toLowerCase() === collectionName.toLowerCase();
+            });
+
+            if (exists)
+            {
+                alert("A collection with that name already exists.");
+                return;
+            }
+
+            recipeCollections.push({
+                name: collectionName,
+                recipes: []
+            });
+
+            saveData();
+            displaySavedRecipes();
+            displayCollections();
+        });
+
+        displaySavedRecipes();
+        displayCollections();
+    </script>
+</body>
+</html>

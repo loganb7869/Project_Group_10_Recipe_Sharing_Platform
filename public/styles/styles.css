@@ -3,7 +3,7 @@ body
     margin: 0;
     font-family: 'Courier New', Courier, monospace;
 
-    background-color: white;
+    background-color: rgb(244, 255, 251);
     color: black;
 }
 
@@ -90,14 +90,12 @@ header input
 
 section
 {
-    background-color: white;
+    background-color: rgb(214, 231, 232);
 
     padding: 25px;
     margin-bottom: 30px;
 
     border-radius: 8px;
-
-    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 section h2
@@ -519,6 +517,63 @@ button:hover
     {
         grid-template-columns: 1fr;
     }
+}
+
+.savedPage
+{
+    max-width: 1100px;
+}
+
+.savedPage h1
+{
+    margin: 0;
+}
+
+.savedPage article
+{
+    padding: 15px;
+    margin-bottom: 15px;
+
+    border: 2px solid black;
+    border-radius: 8px;
+}
+
+.savedPage article h3
+{
+    margin-top: 0;
+}
+
+.savedPage select
+{
+    padding: 10px;
+    margin-right: 10px;
+    margin-bottom: 10px;
+
+    border: 1px solid black;
+    border-radius: 5px;
+}
+
+.savedPage li
+{
+    margin-bottom: 10px;
+}
+
+.savedPage li button
+{
+    padding: 5px 10px;
+    margin-left: 10px;
+}
+
+.saveRecipe
+{
+    margin-top: 10px;
+}
+
+#emptySaved,
+#emptyCollections
+{
+    padding: 15px;
+    color: gray;
 }
 
 /* Mobile */
