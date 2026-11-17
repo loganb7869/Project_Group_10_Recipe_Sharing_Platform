@@ -3,6 +3,7 @@ import pg from 'pg';
 import session from 'express-session';
 import path from 'node:path';
 import { fileURLToPath } from "node:url";
+import { diff } from "node:util";
 require('dotenv').config();
 
 const __filename = fileURLToPath(import.meta.url)
@@ -195,12 +196,306 @@ app.post("/recipe_submit", async (req, res) => {
 });
 
 // view recipe handler
-app.get("/view_recipe", (req, res) => {
-    res.render("recipe_view.ejs", {
-        title: "View Recipe",
-        error: null
-    });
+app.get("/view_recipe", async (req, res) => {
+    // store filters if received
+    const { time, difficulty } = req.body;
+
+    try {
+        // initialize result variable
+        let result;
+
+        // if both filters selected
+        if (time && difficulty) {
+            result = await pool.query('SELECT * FROM recipes WHERE time_to_cook <= $1 AND difficulty = $2 ORDER BY recipe_id DESC', [time, difficulty]);
+        }
+        // if time filter selected
+        else if (time) {
+            result = await pool.query('SELECT * FROM recipes WHERE time_to_cook <= $1 ORDER BY recipe_id DESC', [time]);
+        }
+        // if difficulty filter selected
+        else if (difficulty) {
+            result = await pool.query('SELECT * FROM recipes WHERE difficulty = $1 ORDER BY recipe_id DESC', [difficulty]);
+        } 
+        // otherwise, display all recipes
+        else {
+            result = await pool.query('SELECT * FROM recipes ORDER BY recipe_id DESC');
+        }
+
+        // render the page and pass returned recipes
+        res.render("recipe_view.ejs", {
+            title: "View Recipes",
+            error: null,
+            recipes: result.rows
+        });
+    } catch (err) {
+        // display error for failure to display recipes
+        console.error(err);
+        res.send("Error displaying recipes. Try again later.");
+    }
 });
+
+// rate recipe handler
+app.post("/rate_recipe", async (req, res) => {
+    // check fif user is signed in
+    if (!req.session.userId) {
+        return res.redirect("/signin");
+    }
+
+    // store recipe id and score
+    const { recipe_id, score, review } = req.body;
+    
+    // store user's id
+    const user_id = req.session.userId;
+
+    try {
+        // insert information into ratings table
+        const result = await pool.query('INSERT INTO ratings (user_id, recipe_id, score, review) VALUES ($1,$2,$3,$4)', [user_id, recipe_id, score, review]);
+
+        // if database addition failed
+        if (result.rowCount !== 1) {
+            // return error
+            return res.render('recipe_view', {
+                title: "View Recipes",
+                error: "Rating submission failed. Try again.",
+            });
+        }
+
+        // go back to recipe view page
+        res.redirect("/view_recipe");
+    } catch (err) {
+        // display error for failure to submit recipe rating
+        console.error(err);
+        res.send("Error submitting recipe rating. Try again later.");
+    }
+});
+
+// submit recipe handler
+app.get("/save_recipe", async (req, res) => {
+    // check fif user is signed in
+    if (!req.session.userId) {
+        return res.redirect("/signin");
+    }
+
+    try {
+        // get saved recipes
+        const result = await pool.query('SELECT recipes.* FROM recipes JOIN bookmarked_recipes ON recipes.recipe_id = bookmarked_recipes.recipe_id WHERE bookmarked_recipes.user_id = $1 ORDER BY recipes.recipe_id DESC', [req.session.userId]);
+
+        // send over information to saved recipes page
+        res.render("saved_recipes.ejs", {
+            title: "Saved Recipes",
+            error: null,
+            recipes: result.rows
+        });
+
+    } catch (err) {
+        // error for displaying saved recipes
+        console.error(err);
+        res.send("Error displaying saved recipes. Try again later.");
+    }
+});
+
+// save recipe handler
+app.post("/save_recipe", async (req, res) => {
+    // check fif user is signed in
+    if (!req.session.userId) {
+        return res.redirect("/signin");
+    }
+
+    // store recipe id and score
+    const { recipe_id } = req.body;
+    
+    // store user's id
+    const user_id = req.session.userId;
+
+    try {
+        // insert information into ratings table
+        const result = await pool.query('INSERT INTO bookmarked_recipes (user_id, recipe_id) VALUES ($1,$2)', [user_id, recipe_id]);
+
+        // if database addition failed
+        if (result.rowCount !== 1) {
+            // return error
+            return res.render('recipe_view', {
+                title: "View Recipes",
+                error: "Recipe saving failed. Try again.",
+            });
+        }
+
+        // go back to recipe view page
+        res.redirect("/view_recipe");
+    } catch (err) {
+        // display error for failure to submit recipe rating
+        console.error(err);
+        res.send("Error saving recipe. Try again later.");
+    }
+});
+
+// unsave recipe handler
+app.post("/unsave_recipe", async (req, res) => {
+    // check fif user is signed in
+    if (!req.session.userId) {
+        return res.redirect("/signin");
+    }
+
+    // store recipe id and score
+    const { recipe_id } = req.body;
+    
+    // store user's id
+    const user_id = req.session.userId;
+
+    try {
+        // insert information into ratings table
+        const result = await pool.query('DELETE FROM bookmarked_recipes WHERE user_id = $1 AND recipe_id = $2', [user_id, recipe_id]);
+
+        // if database deletion failed
+        if (result.rowCount !== 1) {
+            // return error
+            return res.render('recipe_view', {
+                title: "View Recipes",
+                error: "Saved recipe removal failed. Try again.",
+            });
+        }
+
+        // go back to recipe view page
+        res.redirect("/view_recipe");
+    } catch (err) {
+        // display error for failure to save recipe 
+        console.error(err);
+        res.send("Error saving recipe. Try again later.");
+    }
+});
+
+// create collection handler
+app.post("/create_collection", async (req, res) => {
+    // check fif user is signed in
+    if (!req.session.userId) {
+        return res.redirect("/signin");
+    }
+
+    // store collection name
+    const { name_of_collection, collection_description } = req.body;
+    
+    // store user's id
+    const user_id = req.session.userId;
+
+    try {
+        // insert information into ratings table
+        const result = await pool.query('INSERT INTO collections (user_id, name_of_collection, description_of_collection) VALUES ($1,$2,$3)', [user_id, name_of_collection, collection_description]);
+
+        // if database addition failed
+        if (result.rowCount !== 1) {
+            // return error
+            return res.render('recipe_view', {
+                title: "Collections",
+                error: "Collection creation failed. Try again.",
+            });
+        }
+
+        // go back to collections page
+        res.redirect("/collections");
+    } catch (err) {
+        // display error for failure to create recipe collection
+        console.error(err);
+        res.send("Error creating collection. Try again later.");
+    }
+});
+
+// collections handler
+app.get("/collections", async (req, res) => {
+    // check fif user is signed in
+    if (!req.session.userId) {
+        return res.redirect("/signin");
+    }
+
+    try {
+        // get collections
+        const result = await pool.query('SELECT * FROM collections WHERE user_id = $1 ORDER BY collection_id DESC', [req.session.userId]);
+
+        // send over information to collections page
+        res.render("collections.ejs", {
+            title: "Collections",
+            error: null,
+            collections: result.rows
+        });
+
+    } catch (err) {
+        // error for displaying collections
+        console.error(err);
+        res.send("Error displaying collections. Try again later.");
+    }
+});
+
+// add recipe to collection handler
+app.post("/add_recipe_to_collection", async (req, res) => {
+    // check fif user is signed in
+    if (!req.session.userId) {
+        return res.redirect("/signin");
+    }
+
+    // store collection and recipe id
+    const { collection_id, recipe_id } = req.body;
+
+    try {
+        // insert information into collections table
+        const result = await pool.query('INSERT INTO recipe_collections (collection_id, recipe_id) SELECT collection_id, $2 FROM collections WHERE collection_id = $1 AND user_id = $3', [collection_id, recipe_id, req.session.userId]);
+
+        // if database addition failed
+        if (result.rowCount !== 1) {
+            // return error
+            return res.render('collections.ejs', {
+                title: "Collections",
+                error: "Recipe save failed. Try again.",
+            });
+        }
+
+        // go back to collections page
+        res.redirect("/collections");
+    } catch (err) {
+        // display error for failure to store recipe
+        console.error(err);
+        res.send("Error creating collection. Try again later.");
+    }
+});
+
+// remove recipe from collection handler
+app.post("/remove_recipe_from_collection", async (req, res) => {
+    // check fif user is signed in
+    if (!req.session.userId) {
+        return res.redirect("/signin");
+    }
+
+    // store collection and recipe id
+    const { collection_id, recipe_id } = req.body;
+
+    try {
+        // delete recipe entry
+        const result = await pool.query('DELETE FROM recipe_collections WHERE collection_id = $1 AND recipe_id = $2', [collection_id, recipe_id]);
+
+        // if entry removal failed
+        if (result.rowCount !== 1) {
+            // return error
+            return res.render('collections.ejs', {
+                title: "Collections",
+                error: "Recipe removal failed. Try again.",
+            });
+        }
+
+        // go back to collections page
+        res.redirect("/collections");
+    } catch (err) {
+        // display error for failure to remove recipe
+        console.error(err);
+        res.send("Error removing recipe from collection. Try again later.");
+    }
+});
+
+/* IN PROGRESS (PHASE 2)
+// collections handler
+app.get("/collections/:id", async (req, res) => {
+    // check fif user is signed in
+    if (!req.session.userId) {
+        return res.redirect("/signin");
+    }
+}); */
 
 // handle page not found
 app.use((req, res) => {
