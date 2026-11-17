@@ -209,13 +209,6 @@ app.get("/preview_submission", (req, res) => {
     });
 });
 
-app.get("/view_recipe", (req, res) => {
-    res.render("recipe_view.ejs", {
-        title: "View Recipe",
-        error: null
-    });
-});
-
 app.get("/saved", (req, res) => {
     res.render("saved_recipes.ejs", {
         title: "Saved Recipes"
