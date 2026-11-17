@@ -488,6 +488,27 @@ app.post("/remove_recipe_from_collection", async (req, res) => {
     }
 });
 
+app.get("/view_recipe", (req, res) => {
+    res.render("recipe_view.ejs", {
+        title: "View Recipe",
+        error: null
+    });
+});
+
+app.get("/preview_submission", (req, res) => {
+    res.render("recipe_submission.ejs", {
+        title: "Recipe Submission",
+        error: null
+    });
+});
+
+app.get("/saved", (req, res) => {
+    res.render("saved_recipes.ejs", {
+        title: "Saved Recipes"
+    });
+});
+
+
 /* IN PROGRESS (PHASE 2)
 // collections handler
 app.get("/collections/:id", async (req, res) => {
