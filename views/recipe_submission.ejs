@@ -101,29 +101,5 @@
 
             </form>
     </main>
-
-    <script>
-        const form = document.getElementById("recipeForm");
-        const formError = document.getElementById("formError");
-
-        form.addEventListener("submit", function(event)
-        {
-            const title = document.getElementById("title").value.trim();
-            const ingredients = document.getElementById("description").value.trim();
-            const instructions = document.getElementById("instructions").value.trim();
-
-            if (title === "" || ingredients === "" || instructions === "" || !form.checkValidity())
-            {
-                event.preventDefault();
-                formError.hidden = false;
-                form.reportValidity();
-            }
-            else
-            {
-                formError.hidden = true;
-            }
-        });
-    </script>
-
 </body>
 </html>

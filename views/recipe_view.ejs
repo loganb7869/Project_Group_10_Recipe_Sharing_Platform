@@ -63,38 +63,5 @@
             </div>
         </section>
     </main>
-
-    <script>
-        const stars = document.querySelectorAll("#stars button");
-        const ratingMessage = document.getElementById("ratingMessage");
-
-        let selectedRating = 0;
-
-        stars.forEach(function(star)
-        {
-            star.addEventListener("click", function()
-            {
-                selectedRating = Number(star.dataset.rating);
-
-                stars.forEach(function(button)
-                {
-                    const value = Number(button.dataset.rating);
-
-                    if (value <= selectedRating)
-                    {
-                        button.textContent = "★";
-                    }
-                    else
-                    {
-                        button.textContent = "☆";
-                    }
-                });
-
-                ratingMessage.textContent =
-                    "You rated this recipe " + selectedRating + " stars";
-            });
-        });
-    </script>
-
 </body>
 </html>
